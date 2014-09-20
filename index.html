@@ -2,35 +2,176 @@
 	<head>
 		<script src="./js/leap-0.6.2.min.js"></script>
 		<script src="./js/wad-min.js"></script>
+		<script src="./js/three.min.js"></script>
+		<script src="./js/TrackballControls.js"></script>
+		<style>
+			body{
+				background-color: #000000;
+				overflow: hidden;
+				color:white;
+				font-size:0.8em;
+				line-height:0.25em;
+        font-family:sans-serif;
+			}
+			a{
+				color:#F0F0F0;
+			}
+		</style>
 	</head>
 	<body>
+		<p>Instrument: <span id="inst"></span></p>
 		<script>
 			var count = 0;
 			var done = false;
+			var container;
+			var camera, scene, renderer, controls;
+			var mouseX, mouseY;
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			var p;
+			var col1 = new THREE.Color(0xffffff * Math.random());
+			var col2 = col1.clone().offsetHSL(0.5,0,0);//its inverse
+			var c1 = 0xffffff * Math.random();
+			var linemat;
+			var lineGeo;
+			var addedLine = false;
+			var lineLength = 20;
+			var line;
+			var last = "";
+			init();
+			animate();
+
+			function init(){
+				container = document.createElement('div');
+				document.body.appendChild(container);//creates display to be added to DOM
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+				camera.position.z = 200;//sets up camera
+
+				scene = new THREE.Scene();//scene setup
+
+		        controls = new THREE.TrackballControls(camera);//sets up controls
+
+				var PI2 = Math.PI * 2;//constant for 2pi
+				var linemat = new THREE.LineBasicMaterial({
+			        color: 0xffffff,
+			        linewidth: 2.5
+			    });
+
+			    lineGeo = new THREE.Geometry();
+
+
+				particleMaterial = new THREE.ParticleCanvasMaterial({
+					color: col1,
+					program: function(context){
+						context.beginPath();
+						context.arc(0, 0, 0.5, 0, PI2, true);
+						context.fill();
+			            // context.beginPath();
+			            // context.rect(-0.5,-0.5, 1, 1)
+			            // context.fill();
+					}
+				});
+
+				p = new THREE.Particle(particleMaterial);
+				p.scale.x = p.scale.y = 10;
+				scene.add(p);
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);//sets up and configures the renderer
+
+				container.appendChild(renderer.domElement);//adds display to DOM
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				window.addEventListener('resize', onWindowResize, false);
+			}
+
+		    function clearScene(){
+		    	scene.children = [];//removes all elements in the scene from the scene
+		    	renderer.setClearColor(new THREE.Color, 0);//clears existing bg color
+		    }
+
+			function onWindowResize(){
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			function onDocumentMouseMove(event) {
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+
+			function animate(){
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			function render(){
+				camera.lookAt(scene.position);
+				controls.update();
+				renderer.render(scene, camera);
+			}
 
 			Leap.loop(function(frame){
+				count++;
+
+
+				render();
 				if(!done && frame.hands.length){
 					done = true;
-					console.log(frame.hands[0])
+					// console.log(frame.hands[0])
+				}
+
+				if(frame.hands.length > 0){
+					var pos = frame.hands[0].palmPosition;
+					p.position = arrToVect(frame.hands[0].palmPosition);
+					lineGeo.vertices.push(p.position.clone());
+
+					if(lineGeo.vertices.length > lineLength)//don't need to cut front and add to back
+						lineGeo.vertices.splice(0,1);//gets rid of front thing
+
+
 				}
 				// if(frame.hands.length)
 					// console.log(frame.hands[0].fingers.length);
+
+				if(!addedLine && lineGeo.vertices.length >= 2){//add line, switch var, etc
+					addedLine = true;
+				    line = new THREE.Line(lineGeo, linemat);
+				    line.material.linewidth = 2.5
+				    scene.add(line);
+				}
+
 				if(count%5==0 && frame.hands.length > 0 && frame.hands[0].fingers.length){
-			  		console.log(frame.hands[0].fingers[0].tipPosition);
+			  		// console.log(frame.hands[0].fingers[0].tipPosition);
 			  		// console.log(frame.hands[0].fingers[0].tipPosition[1])
 			  		var extended = 0;
 			  		for(var i = 0; i < frame.hands[0].fingers.length; i++){
 			  			if(frame.hands[0].fingers[0].extended)
 			  				extended++;
 			  		}
-			  		if(extended < 1)
-			  			return;
 
 
-			  		var scaleX = frame.hands[0].fingers[0].tipPosition[0] / 500 + 0.5;// should get between 0 and 1, approximately
-			  		var scaleY = (frame.hands[0].fingers[0].tipPosition[1] - 40) / 440;// should get between 0 and 1, approximately
-			  		var scaleZ = frame.hands[0].fingers[0].tipPosition[2] / 250;// should get between -1 and 1, approximately
+			  		var scaleX = frame.hands[0].palmPosition[0] / 500 + 0.5;// should get between 0 and 1, approximately
+			  		var scaleY = (frame.hands[0].palmPosition[1] - 40) / 440;// should get between 0 and 1, approximately
+			  		var scaleZ = frame.hands[0].palmPosition[2] / 250;// should get between -1 and 1, approximately
 			  		//may or may not surpass their thresholds :(
+					var c1 = new THREE.Color().setHSL(scaleX, 1, 0.5);
+					var c2 = new THREE.Color().setHSL((scaleX+0.5) % 1, 1, 0.5);
+
+					console.log(frame.hands[0].grabStrength);
+
+			  		if(/*extended < 1 || */frame.hands[0].grabStrength > 0.99){// not enough extended
+						// p.material.color = col2;
+						particleMaterial.color = c1;
+						line.material.color = c2;
+			  			return;
+			  		}
+
+					particleMaterial.color = c2;
+					line.material.color = c1;
+
 			  		freq = scaleX * 800 + 200;
 			  		var source = "sawtooth";
 			  		if(scaleY > 0.75)
@@ -39,17 +180,25 @@
 			  			source = "square";
 			  		else if(scaleY > 0.25)
 			  			source = "triangle";
-			  		var panning = 10 * scaleZ;
-			  		var music = new Wad({source: source,pitch: freq, panning:panning});
+
+			  		if(source != last){
+
+			  		}
+			  		last = source;
+			  		// var panning = 10 * scaleZ;
+			  		var music = new Wad({source: source,pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
 			  		music.play();
 			  		setTimeout(function(){
 			  			music.stop();
 			  		},200);
 			  		// console.log'a');
 				}
-				count++;
 
 			});
+
+			function arrToVect(a){
+				return new THREE.Vector3(a[0],a[1]-200,a[2]);
+			}
 		</script>
 	</body>
 </html>	
