@@ -167,7 +167,7 @@
 
 					console.log(frame.hands[0].grabStrength);
 
-			  		if(/*extended < 1 || */isTogether(frame.hands[0])){// not enough extended
+			  		if(/*extended < 1 || */togetherEh(frame.hands[0])){// not enough extended
 						// p.material.color = col2;
 						particleMaterial.color = c1;
 						line.material.color = c2;
@@ -206,7 +206,7 @@
 				return new THREE.Vector3(a[0],(a[1]-275)*0.5,a[2]);
 			}
 
-			function isTogether(hand){
+			function togetherEh(hand){
 				return hand.grabStrength > 0.99;
 			}
 		</script>
