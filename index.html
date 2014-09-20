@@ -11,10 +11,15 @@
 				color:white;
 				font-size:0.8em;
 				line-height:0.25em;
-        font-family:sans-serif;
+				margin:0;
+        		font-family:sans-serif;
 			}
 			a{
 				color:#F0F0F0;
+			}
+			p{
+				position:absolute;
+
 			}
 		</style>
 	</head>
@@ -154,7 +159,7 @@
 
 
 			  		var scaleX = frame.hands[0].palmPosition[0] / 500 + 0.5;// should get between 0 and 1, approximately
-			  		var scaleY = (frame.hands[0].palmPosition[1] - 40) / 440;// should get between 0 and 1, approximately
+			  		var scaleY = (frame.hands[0].palmPosition[1] - 60) / 440;// should get between 0 and 1, approximately
 			  		var scaleZ = frame.hands[0].palmPosition[2] / 250;// should get between -1 and 1, approximately
 			  		//may or may not surpass their thresholds :(
 					var c1 = new THREE.Color().setHSL(scaleX, 1, 0.5);
@@ -170,7 +175,8 @@
 			  		}
 
 					particleMaterial.color = c2;
-					line.material.color = c1;
+					if(line && line.material)
+						line.material.color = c1;
 
 			  		freq = scaleX * 800 + 200;
 			  		var source = "sawtooth";
@@ -182,7 +188,7 @@
 			  			source = "triangle";
 
 			  		if(source != last){
-
+			  			document.getElementById('inst').innerText = source;
 			  		}
 			  		last = source;
 			  		// var panning = 10 * scaleZ;
@@ -197,7 +203,7 @@
 			});
 
 			function arrToVect(a){
-				return new THREE.Vector3(a[0],a[1]-200,a[2]);
+				return new THREE.Vector3(a[0],(a[1]-275)*0.5,a[2]);
 			}
 		</script>
 	</body>
