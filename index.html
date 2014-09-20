@@ -167,6 +167,19 @@
 
 					console.log(frame.hands[0].grabStrength);
 
+			  		var source = "sawtooth";
+			  		if(scaleY > 0.75)
+			  			source = "sine";
+			  		else if(scaleY > 0.5)
+			  			source = "square";
+			  		else if(scaleY > 0.25)
+			  			source = "triangle";
+
+			  		if(source != last){
+			  			document.getElementById('inst').innerText = source;
+			  		}
+			  		last = source;//rearranged so instrument updates always
+
 			  		if(/*extended < 1 || */togetherEh(frame.hands[0])){// not enough extended
 						// p.material.color = col2;
 						particleMaterial.color = c1;
@@ -179,18 +192,7 @@
 						line.material.color = c1;
 
 			  		freq = scaleX * 800 + 200;
-			  		var source = "sawtooth";
-			  		if(scaleY > 0.75)
-			  			source = "sine";
-			  		else if(scaleY > 0.5)
-			  			source = "square";
-			  		else if(scaleY > 0.25)
-			  			source = "triangle";
 
-			  		if(source != last){
-			  			document.getElementById('inst').innerText = source;
-			  		}
-			  		last = source;
 			  		// var panning = 10 * scaleZ;
 			  		var music = new Wad({source: source,pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
 			  		music.play();
