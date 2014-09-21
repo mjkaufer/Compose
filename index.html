@@ -18,14 +18,20 @@
 			a{
 				color:#F0F0F0;
 			}
-			p{
-				position:absolute;
-
+			#text{
+				margin:1em;
+				z-index:10;
+				position:fixed;
 			}
+
 		</style>
 	</head>
 	<body>
-		<p>Instrument: <span id="inst"></span></p>
+		<div id="text">
+			<h1>Composer</h1>
+			<p>Make sure you connect your Leap Motion</p>
+			<p>Instrument: <span id="inst"></span></p>
+		</div>
 		<script>
 			var count = 0;
 			var done = false;
@@ -60,16 +66,6 @@
 
 		        controls = new THREE.TrackballControls(camera);//sets up controls
 
-		  //       recwad = new Wad({source: 'triangle'});
-
-				// recorder = new Wad.Poly({
-				//     recConfig : {
-				//         workerPath : 'js/recorderWorker.js'
-				//     }
-				// });
-
-				// recorder.add(recwad);
-
 				var PI2 = Math.PI * 2;//constant for 2pi
 				var linemat = new THREE.LineBasicMaterial({
 			        color: 0xffffff,
@@ -78,16 +74,12 @@
 
 			    lineGeo = new THREE.Geometry();
 
-
 				particleMaterial = new THREE.ParticleCanvasMaterial({
 					color: col1,
 					program: function(context){
 						context.beginPath();
 						context.arc(0, 0, 0.5, 0, PI2, true);
 						context.fill();
-			            // context.beginPath();
-			            // context.rect(-0.5,-0.5, 1, 1)
-			            // context.fill();
 					}
 				});
 
@@ -175,7 +167,7 @@
 			  		var scaleY = (frame.hands[0].palmPosition[1] - 60) / 440;// should get between 0 and 1, approximately
 			  		var scaleZ = frame.hands[0].palmPosition[2] / 250;// should get between -1 and 1, approximately
 			  		//may or may not surpass their thresholds :(
-			  		var lightness = Math.min(Math.max(Math.abs(scaleZ), 0.25), 0.75);
+			  		var lightness = Math.min(Math.max(Math.abs(scaleZ), 0.25), 0.60);
 
 					var c1 = new THREE.Color().setHSL(scaleX, 1, lightness);
 					var c2 = new THREE.Color().setHSL((scaleX+0.5) % 1, 1, lightness);
@@ -198,19 +190,23 @@
 			  			document.getElementById('inst').innerText = source;
 			  		}
 			  		last = source;//rearranged so instrument updates always
+			  		var mod = togetherEh(frame.hands[0]) ? 0 : 0.5;
+					var c1 = new THREE.Color().setHSL((scaleX+mod) % 1, 1, lightness);
+					var c2 = new THREE.Color().setHSL((scaleX+mod+0.5) % 1, 1, lightness);
 
-			  		if(/*extended < 1 || */togetherEh(frame.hands[0])){// not enough extended
-						// p.material.color = col2;
-						particleMaterial.color = c1;
-						line.material.color = c1;
-						renderer.setClearColor(c2);
-			  			return;
-			  		}
+			  	// 	if(/*extended < 1 || */togetherEh(frame.hands[0])){// not enough extended
+						// // p.material.color = col2;
+						// particleMaterial.color = c1;
+						// line.material.color = c1;
+						// renderer.setClearColor(c2);
+			  	// 		return;
+			  	// 	}
 
-					particleMaterial.color = c2;
+					particleMaterial.color = c1;
 					if(line && line.material)
-						line.material.color = c2;
-					renderer.setClearColor(c1);
+						line.material.color = c1;
+					renderer.setClearColor(c2);
+					document.getElementById('text').style.color = c1.getHexString();
 
 			  		freq = scaleX * 800 + 200;
 
