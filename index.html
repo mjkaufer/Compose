@@ -170,7 +170,7 @@
 			  		var scaleY = (frame.hands[0].palmPosition[1] - 60) / 440;// should get between 0 and 1, approximately
 			  		var scaleZ = frame.hands[0].palmPosition[2] / 250;// should get between -1 and 1, approximately
 			  		//may or may not surpass their thresholds :(
-			  		var lightness = Math.min(Math.max(Math.abs(scaleZ), 0.25), 0.60);
+			  		var lightness = Math.min(Math.max(Math.abs(scaleZ), 0.45), 0.8);
 
 					var c1 = new THREE.Color().setHSL(scaleX, 1, lightness);
 					var c2 = new THREE.Color().setHSL((scaleX+0.5) % 1, 1, lightness);
@@ -208,6 +208,9 @@
 						line.material.color = c1;
 					renderer.setClearColor(c2);
 					document.getElementById('text').style.color = document.getElementsByTagName('a')[0].style.color = document.getElementsByTagName('a')[1].style.color = c1.getHexString();//link won't play nice
+					if(!mod)//hand not grabbed together
+						return;
+
 
 			  		freq = scaleX * 800 + 200;
 
