@@ -203,15 +203,14 @@
 			  		// duration = Math.abs((scaleZ + 0.2) * 100)
 			  		// if(Math.abs(scaleZ) > 1)
 			  		// 	console.log(scaleZ)
-			  		duration = 200;
 
 
 
-			  		var music = new Wad({source: source, env:{hold: duration}, pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
+			  		var music = new Wad({source: source, pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
 			  		music.play();
 			  		setTimeout(function(){
 			  			music.stop();
-			  		},duration);
+			  		});
 			  		// console.log'a');
 				}
 
