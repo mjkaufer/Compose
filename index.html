@@ -2,6 +2,7 @@
 	<head>
 		<script src="./js/leap-0.6.2.min.js"></script>
 		<script src="./js/wad-min.js"></script>
+		<!-- <script src="./js/recorder.js"></script> -->
 		<script src="./js/three.min.js"></script>
 		<script src="./js/TrackballControls.js"></script>
 		<style>
@@ -40,9 +41,11 @@
 			var linemat;
 			var lineGeo;
 			var addedLine = false;
-			var lineLength = 20;
+			var lineLength = 25;
 			var line;
 			var last = "";
+			// var recorder;
+			// var recwad;
 			init();
 			animate();
 
@@ -56,6 +59,16 @@
 				scene = new THREE.Scene();//scene setup
 
 		        controls = new THREE.TrackballControls(camera);//sets up controls
+
+		  //       recwad = new Wad({source: 'triangle'});
+
+				// recorder = new Wad.Poly({
+				//     recConfig : {
+				//         workerPath : 'js/recorderWorker.js'
+				//     }
+				// });
+
+				// recorder.add(recwad);
 
 				var PI2 = Math.PI * 2;//constant for 2pi
 				var linemat = new THREE.LineBasicMaterial({
@@ -162,14 +175,16 @@
 			  		var scaleY = (frame.hands[0].palmPosition[1] - 60) / 440;// should get between 0 and 1, approximately
 			  		var scaleZ = frame.hands[0].palmPosition[2] / 250;// should get between -1 and 1, approximately
 			  		//may or may not surpass their thresholds :(
-					var c1 = new THREE.Color().setHSL(scaleX, 1, 0.5);
-					var c2 = new THREE.Color().setHSL((scaleX+0.5) % 1, 1, 0.5);
+			  		var lightness = Math.min(Math.max(Math.abs(scaleZ), 0.25), 0.75);
+
+					var c1 = new THREE.Color().setHSL(scaleX, 1, lightness);
+					var c2 = new THREE.Color().setHSL((scaleX+0.5) % 1, 1, lightness);
 
 					console.log(frame.hands[0].grabStrength);
 
-			  		var source = "sawtooth";
+			  		var source = "triangle";
 			  		if(scaleY > 0.5)
-			  			source = "triangle";
+			  			source = "sawtooth";
 
 			  		// var source = "sawtooth";
 			  		// if(scaleY > 0.75)
