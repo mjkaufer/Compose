@@ -24,13 +24,15 @@
 				position:fixed;
 			}
 
+
 		</style>
 	</head>
 	<body>
 		<div id="text">
-			<h1>Composer</h1>
+			<h1>Compose</h1>
 			<p>Make sure you connect your Leap Motion</p>
 			<p>Instrument: <span id="inst"></span></p>
+			<p>Github: <a href="http://github.com/mjkaufer/compose">Compose</a>
 		</div>
 		<script>
 			var count = 0;
@@ -206,7 +208,7 @@
 					if(line && line.material)
 						line.material.color = c1;
 					renderer.setClearColor(c2);
-					document.getElementById('text').style.color = c1.getHexString();
+					document.getElementById('text').style.color = document.getElementsByTagName('a')[0].style.color = c1.getHexString();//link won't play nice
 
 			  		freq = scaleX * 800 + 200;
 
