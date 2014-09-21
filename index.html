@@ -34,7 +34,7 @@
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			var p;
-			var col1 = new THREE.Color(0xffffff * Math.random());
+			var col1 = new THREE.Color(0xffffff);
 			var col2 = col1.clone().offsetHSL(0.5,0,0);//its inverse
 			var c1 = 0xffffff * Math.random();
 			var linemat;
@@ -168,12 +168,16 @@
 					console.log(frame.hands[0].grabStrength);
 
 			  		var source = "sawtooth";
-			  		if(scaleY > 0.75)
-			  			source = "sine";
-			  		else if(scaleY > 0.5)
-			  			source = "square";
-			  		else if(scaleY > 0.25)
+			  		if(scaleY > 0.5)
 			  			source = "triangle";
+
+			  		// var source = "sawtooth";
+			  		// if(scaleY > 0.75)
+			  		// 	source = "sine";
+			  		// else if(scaleY > 0.5)
+			  		// 	source = "square";
+			  		// else if(scaleY > 0.25)
+			  		// 	source = "triangle";
 
 			  		if(source != last){
 			  			document.getElementById('inst').innerText = source;
@@ -183,22 +187,31 @@
 			  		if(/*extended < 1 || */togetherEh(frame.hands[0])){// not enough extended
 						// p.material.color = col2;
 						particleMaterial.color = c1;
-						line.material.color = c2;
+						line.material.color = c1;
+						renderer.setClearColor(c2);
 			  			return;
 			  		}
 
 					particleMaterial.color = c2;
 					if(line && line.material)
-						line.material.color = c1;
+						line.material.color = c2;
+					renderer.setClearColor(c1);
 
 			  		freq = scaleX * 800 + 200;
 
 			  		// var panning = 10 * scaleZ;
-			  		var music = new Wad({source: source,pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
+			  		// duration = Math.abs((scaleZ + 0.2) * 100)
+			  		// if(Math.abs(scaleZ) > 1)
+			  		// 	console.log(scaleZ)
+			  		duration = 200;
+
+
+
+			  		var music = new Wad({source: source, env:{hold: duration}, pitch: freq, volume: 1 - Math.sqrt(frame.hands[0].grabStrength)/*, panning:panning*/});
 			  		music.play();
 			  		setTimeout(function(){
 			  			music.stop();
-			  		},200);
+			  		},duration);
 			  		// console.log'a');
 				}
 
